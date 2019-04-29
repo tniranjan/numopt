@@ -5,16 +5,13 @@
 namespace numopt {
 // A Generic Functor type, that can be used in combination with Eigen AD.
 // From GGael's example https://forum.kde.org/viewtopic.php?f=74&t=111409
-template <Index nIN, Index nOUT> 
-struct Functor {
+template <Index nIN, Index nOUT> struct Functor {
   typedef double Scalar;
-  enum {
-    InputsAtCompileTime = nIN,
-    ValuesAtCompileTime = nOUT
-  };
+  enum { InputsAtCompileTime = nIN, ValuesAtCompileTime = nOUT };
   typedef Eigen::Matrix<Scalar, InputsAtCompileTime, 1> InputType;
   typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, 1> ValueType;
-  typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, InputsAtCompileTime> JacobianType;
+  typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, InputsAtCompileTime>
+      JacobianType;
 
   const int m_inputs, m_values;
 
@@ -28,4 +25,4 @@ struct Functor {
 
   //   virtual void operator() (const InputType& x, ValueType* v) const = 0;
 };
-} // namespace NumOpt
+} // namespace numopt
