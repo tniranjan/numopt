@@ -44,11 +44,11 @@ int main() {
             << " J : " << rosenbrock.jacobian(x, out) << std::endl;
 
   numopt::solver::SolverSettings settings;
-  numopt::GradientDescentSolver<numopt::problems::ParaboloidProblem<
-      numopt::functors::ParaboloidFunctor<nin, nout>>>
-      gdSolver(paraboloid, settings);
-      x.setRandom();
-  gdSolver.minimize(x);
+  numopt::GradientDescentSolver<numopt::problems::Rosenbrock2dProblem<
+      numopt::functors::RosenbrockFunctor<nin, nout>>>
+      gdSolver(rosenbrock, settings);
+  const auto data = gdSolver.minimize(x);
+  gdSolver.printSummary(data);
 
   return 0;
 }
