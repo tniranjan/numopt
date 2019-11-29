@@ -13,7 +13,8 @@ class GradientDescentSolver : public Solver<_Problem> {
   typedef solver::SolverData<InputType, ValueType> TSolverData;
 
 public:
-  GradientDescentSolver(TProblem &problem, solver::SolverSettings &settings)
+  GradientDescentSolver(const TProblem &problem,
+                        const solver::SolverSettings &settings)
       : Solver<TProblem>::Solver(problem, settings) {}
   using Solver<_Problem>::problem;
   using Solver<_Problem>::settings;

@@ -16,9 +16,8 @@ int main() {
   numopt::functors::ParaboloidFunctor<nin, nout> parabFunctor;
   numopt::Problem<numopt::functors::ParaboloidFunctor<nin, nout>> paraboloidAD(
       parabFunctor);
-  numopt::problems::ParaboloidProblem<
-      numopt::functors::ParaboloidFunctor<nin, nout>>
-      paraboloid(parabFunctor);
+  const auto paraboloid = numopt::problems::ParaboloidProblem<
+      numopt::functors::ParaboloidFunctor<nin, nout>>();
   IType x;
   x.setRandom();
   OType out;
@@ -32,9 +31,10 @@ int main() {
   numopt::functors::RosenbrockFunctor<nin, nout> rosenFunctor;
   numopt::Problem<numopt::functors::RosenbrockFunctor<nin, nout>> rosenbrockAD(
       rosenFunctor);
-  numopt::problems::Rosenbrock2dProblem<
+  const numopt::problems::Rosenbrock2dProblem<
       numopt::functors::RosenbrockFunctor<nin, nout>>
-      rosenbrock(rosenFunctor);
+      rosenbrock = numopt::problems::Rosenbrock2dProblem<
+          numopt::functors::RosenbrockFunctor<nin, nout>>();
   std::cout << "\n Rosenbrock: \n" << std::endl;
   std::cout << "AD: \n"
             << "In : " << x.transpose() << " Out : " << rosenbrockAD(x)

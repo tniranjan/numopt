@@ -16,7 +16,7 @@ template <typename _Problem> class Solver {
   typedef solver::SolverData<InputType, ValueType> TSolverData;
 
 public:
-  Solver(TProblem &problem, solver::SolverSettings &settings)
+  Solver(const TProblem &problem, const solver::SolverSettings &settings)
       : problem_(problem), settings_(settings){};
   virtual TSolverData minimize(const InputType &initialValue) = 0;
   void printSummary(const TSolverData &solverData) const {
@@ -41,10 +41,7 @@ protected:
         checkCondition(curIter == (settings_.maxSolverIterations - 1),
                        "Reached maximum no.of iterations without convergence"));
   }
-  TProblem &problem() { return problem_; }
   const TProblem &problem() const { return problem_; }
-
-  solver::SolverSettings &settings() { return settings_; }
   const solver::SolverSettings &settings() const { return settings_; }
 
 private:
@@ -55,7 +52,7 @@ private:
     return condition;
   }
 
-  TProblem problem_;
-  solver::SolverSettings settings_;
+  const TProblem &problem_;
+  const solver::SolverSettings &settings_;
 };
 } // namespace numopt

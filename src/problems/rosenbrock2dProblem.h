@@ -14,6 +14,7 @@ public:
   typedef typename TFunctor::InputType InputType;
   typedef typename TFunctor::ValueType ValueType;
   typedef typename TFunctor::JacobianType JacobianType;
+  Rosenbrock2dProblem() : Problem<TFunctor>::Problem() {}
   Rosenbrock2dProblem(TFunctor &functor)
       : Problem<TFunctor>::Problem(functor) {}
 

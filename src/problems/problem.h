@@ -12,6 +12,7 @@ public:
   typedef typename TFunctor::ValueType ValueType;
   typedef typename TFunctor::JacobianType JacobianType;
 
+  Problem() : functor_(TFunctor()) {}
   Problem(TFunctor &functor) : functor_(functor) {}
 
   ValueType operator()(const InputType &in) const {

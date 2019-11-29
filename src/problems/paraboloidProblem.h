@@ -14,6 +14,7 @@ public:
   typedef typename TFunctor::ValueType ValueType;
   typedef typename TFunctor::JacobianType JacobianType;
 
+  ParaboloidProblem() : Problem<TFunctor>::Problem() {}
   ParaboloidProblem(TFunctor &functor) : Problem<TFunctor>::Problem(functor) {}
 
   JacobianType jacobian(const InputType &in, ValueType &out) const {

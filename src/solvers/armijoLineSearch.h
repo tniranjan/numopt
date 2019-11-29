@@ -16,14 +16,15 @@ double ArmijoLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
   const double prevNorm = func(xcur).x();
 
   if (verbose > 1)
-    std::cout << "Armijo - Init Norm : " << prevNorm<<std::endl;
+    std::cout << "Armijo - Init Norm : " << prevNorm << std::endl;
 
   for (unsigned iter = 0; iter < maxIterations; iter++) {
     xnext = xcur + alphak * dir;
     const double curNorm = func(xnext).x();
 
     if (verbose > 1)
-      std::cout << "Armijo - Cur Norm : " << curNorm << " Step Size : " << alphak<<std::endl;
+      std::cout << "Armijo - Cur Norm : " << curNorm
+                << " Step Size : " << alphak << std::endl;
 
     if (curNorm <= prevNorm - LS_C * alphak * dir.norm()) {
       if (palpha)
