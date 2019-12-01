@@ -13,39 +13,43 @@ int main() {
   typedef Eigen::Matrix<double, nout, 1> OType;
   typedef Eigen::Matrix<double, nout, nin> JType;
 
-  numopt::functors::ParaboloidFunctor<nin, nout> parabFunctor;
-  numopt::Problem<numopt::functors::ParaboloidFunctor<nin, nout>> paraboloidAD(
+  numopt::functors::ParaboloidFunctor<nin> parabFunctor;
+  numopt::Problem<numopt::functors::ParaboloidFunctor<nin>> paraboloidAD(
       parabFunctor);
   const auto paraboloid = numopt::problems::ParaboloidProblem<
-      numopt::functors::ParaboloidFunctor<nin, nout>>();
+      numopt::functors::ParaboloidFunctor<nin>>();
   IType x;
   x.setRandom();
   OType out;
   std::cout << "\n Paraboloid: \n" << std::endl;
   std::cout << "AD: \n"
             << "In : " << x.transpose() << " Out : " << paraboloidAD(x)
-            << " J : " << paraboloidAD.jacobian(x, out) << std::endl;
+            << " J : " << paraboloidAD.jacobian(x).first << "\n H: \n "
+            << paraboloidAD.hessian(x) << std::endl;
   std::cout << "AnD: \n"
             << "In : " << x.transpose() << " Out : " << paraboloid(x)
-            << " J : " << paraboloid.jacobian(x, out) << std::endl;
-  numopt::functors::RosenbrockFunctor<nin, nout> rosenFunctor;
-  numopt::Problem<numopt::functors::RosenbrockFunctor<nin, nout>> rosenbrockAD(
+            << " J : " << paraboloid.jacobian(x).first << "\n H: \n "
+            << paraboloid.hessian(x) << std::endl;
+  numopt::functors::RosenbrockFunctor<nin> rosenFunctor;
+  numopt::Problem<numopt::functors::RosenbrockFunctor<nin>> rosenbrockAD(
       rosenFunctor);
   const numopt::problems::Rosenbrock2dProblem<
-      numopt::functors::RosenbrockFunctor<nin, nout>>
+      numopt::functors::RosenbrockFunctor<nin>>
       rosenbrock = numopt::problems::Rosenbrock2dProblem<
-          numopt::functors::RosenbrockFunctor<nin, nout>>();
+          numopt::functors::RosenbrockFunctor<nin>>();
   std::cout << "\n Rosenbrock: \n" << std::endl;
   std::cout << "AD: \n"
             << "In : " << x.transpose() << " Out : " << rosenbrockAD(x)
-            << " J : " << rosenbrockAD.jacobian(x, out) << std::endl;
+            << " J : " << rosenbrockAD.jacobian(x).first << "\n H: \n "
+            << rosenbrockAD.hessian(x) << std::endl;
   std::cout << "AnD: \n"
             << "In : " << x.transpose() << " Out : " << rosenbrock(x)
-            << " J : " << rosenbrock.jacobian(x, out) << std::endl;
+            << " J : " << rosenbrock.jacobian(x).first<< "\n H: \n "
+            << rosenbrock.hessian(x) << std::endl;
 
   numopt::solver::SolverSettings settings;
   numopt::GradientDescentSolver<numopt::problems::Rosenbrock2dProblem<
-      numopt::functors::RosenbrockFunctor<nin, nout>>>
+      numopt::functors::RosenbrockFunctor<nin>>>
       gdSolver(rosenbrock, settings);
   const auto data = gdSolver.minimize(x);
   gdSolver.printSummary(data);

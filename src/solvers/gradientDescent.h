@@ -48,7 +48,7 @@ protected:
   InputType direction(const InputType &in) const override {
     // gradient = jacobianT here
     ValueType out;
-    const JacobianType grad = -problem().jacobian(in, out);
+    const JacobianType grad = -problem().jacobian(in).first;
     return grad.transpose();
   }
 
