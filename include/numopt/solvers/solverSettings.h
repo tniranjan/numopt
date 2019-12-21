@@ -16,7 +16,7 @@ struct SolverSettings {
         linesearchtype(LineSearchType::Armijo) {}
 };
 
-constexpr static double LS_InitalAlpha = 1.0;
+constexpr static double LS_InitalAlpha = 0.8;
 constexpr static double LS_Rho = 0.5;
 constexpr static double LS_C = 0.0001;
 } // namespace solver
