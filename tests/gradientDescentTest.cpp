@@ -54,7 +54,6 @@ TEST(gradientdescent_parab_sameAD_test_case, gradientdescent_test) {
           numopt::functors::ParaboloidFunctor<nin>>();
   
   numopt::solver::SolverSettings settings;
-  settings.verbosity = 10;
 
   numopt::GradientDescentSolver<numopt::problems::ParaboloidProblem<
       numopt::functors::ParaboloidFunctor<nin>>>
