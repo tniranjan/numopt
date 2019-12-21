@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
-
 #include <problems/paraboloidFunctor.h>
 #include <problems/paraboloidProblem.h>
 #include <problems/problem.h>

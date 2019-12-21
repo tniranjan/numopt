@@ -1,27 +1,23 @@
 cmake_minimum_required(VERSION 3.13)
+
 # Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+configure_file(tests/CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download"
-)
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
 execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download"
-)
-
-# Prevent GoogleTest from overriding our compiler/linker options
-# when building with Visual Studio
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add googletest directly to our build. This adds the following targets:
-# gtest, gtest_main, gmock and gmock_main
 add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src"
-                 "${CMAKE_BINARY_DIR}/googletest-build"
-)
+                 "${CMAKE_BINARY_DIR}/googletest-build")
 
 project(numopt)
 
-add_executable("${PROJECT_NAME}UnitTests" "")
+add_library(${PROJECT_NAME} INTERFACE)
 
 add_subdirectory(external)
-add_subdirectory(src)
+add_subdirectory(include/numopt)
+
+target_include_directories(${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/numopt/>)
+target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
+
 add_subdirectory(tests)
