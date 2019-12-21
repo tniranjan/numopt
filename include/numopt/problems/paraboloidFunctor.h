@@ -13,7 +13,7 @@ template <Index nIN> struct ParaboloidFunctor : Functor<nIN> {
   template <typename T>
   void operator()(const Eigen::Matrix<T, nIN, 1> &in,
                   Eigen::Matrix<T, 1, 1> *out) const {
-    *out << (in.cwiseProduct(in).sum() + 5);
+    *out << (in.squaredNorm() + T(5));
   }
 };
 } // namespace functors
