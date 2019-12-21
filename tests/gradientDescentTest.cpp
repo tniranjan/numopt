@@ -9,7 +9,6 @@
 
 TEST(gradientdescent_rosenrock_sameAD_test_case, gradientdescent_test) {
   const Index nin = 2;
-  const Index nout = 1;
   typedef Eigen::Matrix<double, nin, 1> IType;
 
   IType x;
@@ -41,7 +40,6 @@ TEST(gradientdescent_rosenrock_sameAD_test_case, gradientdescent_test) {
 
 TEST(gradientdescent_parab_sameAD_test_case, gradientdescent_test) {
   const Index nin = 32;
-  const Index nout = 1;
   typedef Eigen::Matrix<double, nin, 1> IType;
 
   IType x;
@@ -73,7 +71,6 @@ TEST(gradientdescent_parab_sameAD_test_case, gradientdescent_test) {
 
   TEST(gradientdescent_parab_test_case, gradientdescent_test) {
   const Index nin = 32;
-  const Index nout = 1;
   typedef Eigen::Matrix<double, nin, 1> IType;
 
   IType x;

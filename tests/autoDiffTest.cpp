@@ -9,10 +9,7 @@
 
 TEST(autodiff_parab_test_case, autodiff_test) {
   const Index nin = 2;
-  const Index nout = 1;
   typedef Eigen::Matrix<double, nin, 1> IType;
-  typedef Eigen::Matrix<double, nout, 1> OType;
-  typedef Eigen::Matrix<double, nout, nin> JType;
 
   numopt::functors::ParaboloidFunctor<nin> parabFunctor;
   numopt::Problem<numopt::functors::ParaboloidFunctor<nin>> paraboloidAD(
@@ -28,10 +25,7 @@ TEST(autodiff_parab_test_case, autodiff_test) {
 
 TEST(autodiff_rosenbrock_test_case, autodiff_test) {
   const Index nin = 2;
-  const Index nout = 1;
   typedef Eigen::Matrix<double, nin, 1> IType;
-  typedef Eigen::Matrix<double, nout, 1> OType;
-  typedef Eigen::Matrix<double, nout, nin> JType;
 
   numopt::functors::RosenbrockFunctor<nin> rosenFunctor;
   numopt::Problem<numopt::functors::RosenbrockFunctor<nin>> rosenbrockAD(
