@@ -7,6 +7,10 @@
 #include <problems/rosenbrockFunctor.h>
 #include <solvers/gradientDescent.h>
 
+
+using namespace std;
+#include <autodiff/reverse.hpp>
+
 TEST(autodiff_parab_test_case, autodiff_test) {
   const Index nin = 2;
   typedef Eigen::Matrix<double, nin, 1> IType;

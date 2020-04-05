@@ -1,4 +1,6 @@
 add_executable("${PROJECT_NAME}UnitTests" "")
+
+target_compile_features("${PROJECT_NAME}UnitTests" PRIVATE cxx_std_17)
 FILE(GLOB_RECURSE SOURCES *.cpp)
 target_sources("${PROJECT_NAME}UnitTests" PUBLIC ${SOURCES})
 target_link_libraries("${PROJECT_NAME}UnitTests" PUBLIC ${PROJECT_NAME} gtest gtest_main)
