@@ -7,10 +7,6 @@ namespace numopt {
 template <typename _Problem>
 class GradientDescentSolver : public Solver<_Problem> {
   typedef _Problem TProblem;
-  typedef typename TProblem::InputType InputType;
-  typedef typename TProblem::ValueType ValueType;
-  typedef typename TProblem::JacobianType JacobianType;
-  typedef solver::SolverData<InputType, ValueType> TSolverData;
 
 public:
   GradientDescentSolver(const TProblem &problem,
@@ -19,25 +15,26 @@ public:
   using Solver<_Problem>::problem;
   using Solver<_Problem>::settings;
   using Solver<_Problem>::hasConverged;
-  TSolverData minimize(const InputType &initValue) {
-    TSolverData solverData;
+  solver::SolverData minimize(const VectorX &initValue) {
+    solver::SolverData solverData;
     solverData.argmin = initValue;
     double prevNorm;
-    solverData.min = problem()(initValue).x();
+    solverData.min = problem()(initValue);
     double alpha(1);
     for (unsigned iter = 0; iter < settings().maxSolverIterations; iter++) {
       prevNorm = solverData.min;
-      const InputType dir = direction(solverData.argmin);
-      const InputType xCur = solverData.argmin;
+      const VectorX dir = direction(solverData.argmin);
+      const VectorX xCur = solverData.argmin;
       solverData.min = //(settings().linesearchtype == LineSearchType::Armijo) ?
           solver::ArmijoLineSearch(xCur, dir, problem(), solverData.argmin,
                                    &alpha, settings().verbosity,
                                    settings().functionTolerance,
                                    settings().parameterTolerance,
-                                   settings().maxLineSearchIterations);      
+                                   settings().maxLineSearchIterations);
       solverData.nIter = iter + 1;
       solverData.paramNorm = alpha * dir.norm();
-      if (hasConverged(std::abs(prevNorm - solverData.min), alpha * dir.norm(), iter)) {
+      if (hasConverged(std::abs(prevNorm - solverData.min), alpha * dir.norm(),
+                       iter)) {
         break;
       }
     }
@@ -45,11 +42,9 @@ public:
   }
 
 protected:
-  InputType direction(const InputType &in) const override {
-    // gradient = jacobianT here
-    ValueType out;
-    const JacobianType grad = -problem().jacobian(in).first;
-    return grad.transpose();
+  VectorX direction(const VectorX &in) const override {
+    const VectorX grad = -problem().gradient(in).first;
+    return grad;
   }
 
 private:
