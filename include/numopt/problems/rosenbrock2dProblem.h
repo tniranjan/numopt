@@ -6,34 +6,30 @@
 
 namespace numopt {
 namespace problems {
-template <typename _Functor>
-class Rosenbrock2dProblem : public Problem<_Functor> {
 
+class Rosenbrock2dProblem : public ProblemBase {
 public:
-  typedef _Functor TFunctor;
-  typedef typename TFunctor::InputType InputType;
-  typedef typename TFunctor::ValueType ValueType;
-  typedef typename TFunctor::JacobianType JacobianType;
-  typedef typename TFunctor::HessianType HessianType;
-  Rosenbrock2dProblem() : Problem<TFunctor>::Problem() {}
-  Rosenbrock2dProblem(TFunctor &functor)
-      : Problem<TFunctor>::Problem(functor) {}
-
-  std::pair<JacobianType, ValueType> jacobian(const InputType &in) const {
-    const ValueType out = this->operator()(in);
-    const double dx = 2 * (in.x() - 1) + 400 * in.x() * (in.x() * in.x() - in.y());
-    const double dy = -200 * (in.x() * in.x() - in.y());
-    const JacobianType jac = JacobianType(dx, dy);
-    return std::make_pair(jac, out);
+  Rosenbrock2dProblem() {}
+  double operator()(const VectorX &in) const override {
+    const auto p1 = (in.x() * in.x() - in.y());
+    const auto p2 = (in.x() - 1);
+    return 100 * p1 * p1 + p2 * p2;
   }
 
-  HessianType hessian(const InputType &in) const {
-    HessianType H;
+  std::pair<VectorX, double> gradient(const VectorX &in) const override {
+    const double dx = 2 * (in.x() - 1) + 400 * in.x() * (in.x() * in.x() - in.y());
+    const double dy = -200 * (in.x() * in.x() - in.y());
+    const VectorX grad = (Eigen::Matrix<double, 2, 1>() << dx, dy).finished();
+    return std::make_pair(grad, this->operator()(in));
+  }
+
+  std::pair<SparseMatrixX, VectorX> hessian(const VectorX &in) const {
+    MatrixX H(in.rows(), in.rows());
     H(0, 0) = 1200 * in.x() * in.x() - 400 * in.y() + 2;
     H(0, 1) = -400 * in.x();
     H(1, 0) = -400 * in.x();
     H(1, 1) = 200;
-    return H;
+    return std::make_pair(H.sparseView(), gradient(in).first);
   }
 };
 } // namespace problems

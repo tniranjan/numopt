@@ -13,7 +13,7 @@ double ArmijoLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
                         const unsigned verbose, const double funcTol,
                         const double paramTol, const unsigned maxIterations) {
   double alphak = LS_InitalAlpha;
-  const double initNorm = func(xcur).x();
+  const double initNorm = func(xcur);
   double prevNorm = initNorm;
 
   if (verbose > 1)
@@ -21,7 +21,7 @@ double ArmijoLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
 
   for (unsigned iter = 0; iter < maxIterations; iter++) {
     xnext = (xcur + alphak * dir).eval();
-    const double curNorm = func(xnext).x();
+    const double curNorm = func(xnext);
 
     if (verbose > 1)
       std::cout << "Armijo - Cur Norm : " << curNorm

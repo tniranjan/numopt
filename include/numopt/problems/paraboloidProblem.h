@@ -6,30 +6,24 @@
 
 namespace numopt {
 namespace problems {
-template <typename _Functor>
-class ParaboloidProblem : public Problem<_Functor> {
+
+class ParaboloidProblem : public ProblemBase {
 public:
-  typedef _Functor TFunctor;
-  typedef typename TFunctor::InputType InputType;
-  typedef typename TFunctor::ValueType ValueType;
-  typedef typename TFunctor::JacobianType JacobianType;
-  typedef typename TFunctor::HessianType HessianType;
-
-  ParaboloidProblem() : Problem<TFunctor>::Problem() {}
-  ParaboloidProblem(TFunctor &functor) : Problem<TFunctor>::Problem(functor) {}
-
-  std::pair<JacobianType, ValueType>  jacobian(const InputType &in) const {
-    ValueType out;
-    out = this->operator()(in);
-    JacobianType jac = (2 * in.transpose());
-    return std::make_pair(jac,out);
+  ParaboloidProblem() {}
+  double operator()(const VectorX &in) const override {
+    return (in.squaredNorm() + (5));
+  }
+  
+  std::pair<VectorX, double> gradient(const VectorX &in) const override {
+    const VectorX grad = 2 * in.transpose();
+    return std::make_pair(grad, this->operator()(in));
   }
 
-  HessianType hessian(const InputType &in) const{
-    HessianType H;
+  std::pair<SparseMatrixX, VectorX> hessian(const VectorX &in) const {
+    SparseMatrixX H(in.rows(), in.rows());
     H.setIdentity();
-    H = 2*H;
-    return H;
+    H = 2 * H;
+    return std::make_pair(H, gradient(in).first);
   }
 };
 } // namespace problems
