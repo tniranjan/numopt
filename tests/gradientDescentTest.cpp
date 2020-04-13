@@ -14,6 +14,9 @@ TEST(gradientdescent_rosenrock_sameAD_test_case, gradientdescent_test) {
   numopt::problems::Rosenbrock2dProblem rosenbrockProb;
 
   numopt::solver::SolverSettings settings;
+  settings.functionTolerance = numopt::constants::s_eps10;
+  settings.parameterTolerance = numopt::constants::s_eps10;
+  settings.maxSolverIterations = 1e6;
 
   numopt::GradientDescentSolver<numopt::problems::Rosenbrock2dProblem> gdSolver(
       rosenbrockProb, settings);
@@ -22,9 +25,10 @@ TEST(gradientdescent_rosenrock_sameAD_test_case, gradientdescent_test) {
   numopt::GradientDescentSolver<numopt::ProblemAD> gdSolverAD(rosenbrockProbAD,
                                                               settings);
   const auto dataAD = gdSolverAD.minimize(x);
-
   EXPECT_TRUE(data.argmin.isApprox(dataAD.argmin, numopt::constants::s_eps10));
   EXPECT_TRUE(std::abs(data.min - dataAD.min) < numopt::constants::s_eps10);
+  ASSERT_NEAR(data.min, 0, 0.1 * numopt::constants::s_eps6);
+  EXPECT_TRUE(data.argmin.isApproxToConstant(1, numopt::constants::s_eps3));
 }
 
 TEST(gradientdescent_parab_sameAD_test_case, gradientdescent_test) {
