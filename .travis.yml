@@ -50,4 +50,6 @@ script:
      - cd build
      - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON .. 
      - make
-     - ./tests/numoptUnitTests 
+     - ./tests/numoptUnitTests
+after_success:
+     - bash <(curl -s https://codecov.io/bash)
