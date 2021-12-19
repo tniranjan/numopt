@@ -1,5 +1,5 @@
 #pragma once
-#include <solvers/armijoLineSearch.h>
+#include <solvers/linesearch/backtrackingLineSearch.h>
 #include <solvers/solver.h>
 #include <solvers/solverSettings.h>
 
@@ -25,8 +25,8 @@ public:
       prevNorm = solverData.min;
       const VectorX dir = direction(solverData.argmin);
       const VectorX xCur = solverData.argmin;
-      solverData.min = //(settings().linesearchtype == LineSearchType::Armijo) ?
-          solver::ArmijoLineSearch(xCur, dir, problem(), solverData.argmin,
+      solverData.min = //(settings().linesearchtype == solver::SolverSettings::LineSearchType::BackTracking) ?
+          solver::BackTrackingLineSearch(xCur, dir, problem(), solverData.argmin,
                                    &alpha, settings().verbosity,
                                    settings().functionTolerance,
                                    settings().parameterTolerance,
