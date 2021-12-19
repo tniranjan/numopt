@@ -6,7 +6,7 @@
 namespace numopt {
 namespace solver {
 template <typename DerivedX, typename Evaluator>
-double ArmijoLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
+double BackTrackingLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
                         const Eigen::MatrixBase<DerivedX> &dir,
                         const Evaluator func,
                         Eigen::MatrixBase<DerivedX> &xnext, double *palpha,
@@ -17,14 +17,14 @@ double ArmijoLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
   double prevNorm = initNorm;
 
   if (verbose > 1)
-    std::cout << "Armijo - Init Norm : " << initNorm << std::endl;
+    std::cout << "BackTracking - Init Norm : " << initNorm << std::endl;
 
   for (unsigned iter = 0; iter < maxIterations; iter++) {
     xnext = (xcur + alphak * dir).eval();
     const double curNorm = func(xnext);
 
     if (verbose > 1)
-      std::cout << "Armijo - Cur Norm : " << curNorm
+      std::cout << "BackTracking - Cur Norm : " << curNorm
                 << " Step Size : " << alphak << std::endl;
 
     if (curNorm <= initNorm - LS_C * alphak * dir.norm()) {
