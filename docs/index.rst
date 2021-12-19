@@ -15,5 +15,25 @@ Or a yali_. Whatever sinks your boat.
 Docs
 ====
 
+.. doxygenfunction:: numopt::functors::paraboloid
+.. doxygenfunction:: numopt::functors::rosenbrock
+.. doxygenclass:: numopt::ProblemBase
+   :members:
+.. doxygenclass:: numopt::ProblemAD
+   :members:
+
+.. doxygenclass:: numopt::problems::Rosenbrock2dProblem
+   :members:
 .. doxygenclass:: numopt::problems::ParaboloidProblem
    :members:
+
+.. doxygenclass:: numopt::Solver
+   :members:
+.. doxygenstruct:: numopt::solver::SolverData
+   :members:
+.. doxygenstruct:: numopt::solver::SolverSettings
+   :members:
+.. doxygenfunction:: numopt::solver::BackTrackingLineSearch
+.. doxygenclass:: numopt::GradientDescentSolver
+   :members:
+

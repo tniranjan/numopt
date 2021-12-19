@@ -3,24 +3,24 @@
 #include <base/types.h>
 
 namespace numopt {
-namespace functors {
 /**
  * Define test functors here
  */
 
-
+namespace functors {
+/**
+ * returns the paraboloid with an offset of 5.
+ */
 template <typename T> T paraboloid(const VectorS<T> &in) {
-  /** 
-   * returns the paraboloid with an offset of 5.
-   */ 
   return (in.squaredNorm() + T(5));
 }
 
+/**
+ * returns the rosenbrock function
+ */
 template <typename T> T rosenbrock(const VectorS<T> &in) {
-  /**
-   * returns the rosenbrock function
-   */ 
-  const VectorS<T> inEven = in(Eigen::seq(0, Eigen::last, 2), Eigen::all).eval();
+  const VectorS<T> inEven =
+      in(Eigen::seq(0, Eigen::last, 2), Eigen::all).eval();
   const VectorS<T> inOdd = in(Eigen::seq(1, Eigen::last, 2), Eigen::all).eval();
   const VectorS<T> onesT = VectorS<T>::Ones(inEven.rows());
   const VectorS<T> p1 = (inEven.cwiseProduct(inEven) - inOdd).eval();
