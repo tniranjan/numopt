@@ -1,17 +1,25 @@
 #pragma once
 
 #include <base/types.h>
-#include <solvers/solverSettings.h>
 
 namespace numopt {
 namespace solver {
+constexpr static double LS_InitalAlpha = 0.8;
+constexpr static double LS_Rho = 0.5;
+constexpr static double LS_C = 0.0001;
+/**
+ * Implements the Backtracking algorithm. (3.1)
+ * Only ensures sufficient decrease (weak Wolfe Conditions)
+ */
+
 template <typename DerivedX, typename Evaluator>
 double BackTrackingLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
-                        const Eigen::MatrixBase<DerivedX> &dir,
-                        const Evaluator func,
-                        Eigen::MatrixBase<DerivedX> &xnext, double *palpha,
-                        const unsigned verbose, const double funcTol,
-                        const double paramTol, const unsigned maxIterations) {
+                              const Eigen::MatrixBase<DerivedX> &dir,
+                              const Evaluator func,
+                              Eigen::MatrixBase<DerivedX> &xnext,
+                              double *palpha, const unsigned verbose,
+                              const double funcTol, const double paramTol,
+                              const unsigned maxIterations) {
   double alphak = LS_InitalAlpha;
   const double initNorm = func(xcur);
   double prevNorm = initNorm;

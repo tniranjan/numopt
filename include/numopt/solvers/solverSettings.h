@@ -16,8 +16,6 @@ struct SolverSettings {
         linesearchtype(LineSearchType::BackTracking) {}
 };
 
-constexpr static double LS_InitalAlpha = 0.8;
-constexpr static double LS_Rho = 0.5;
-constexpr static double LS_C = 0.0001;
+
 } // namespace solver
 } // namespace numopt
