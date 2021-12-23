@@ -57,5 +57,7 @@ Linesearch
 
 .. doxygenstruct:: numopt::solver::linesearch::LinesearchSettings
    :members:
-.. doxygenfunction:: numopt::solver::linesearch::BackTrackingLineSearch
-.. doxygenfunction:: numopt::solver::linesearch::StrongWolfeLineSearch
+.. doxygenclass:: numopt::solver::linesearch::BackTrackingLinesearch
+   :members:
+.. doxygenclass:: numopt::solver::linesearch::StrongWolfeLinesearch
+   :members:

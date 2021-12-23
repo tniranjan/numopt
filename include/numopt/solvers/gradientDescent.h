@@ -28,7 +28,7 @@ public:
       const VectorX xCur = solverData.argmin;
       solverData.min = //(settings().linesearchtype ==
                        //solver::SolverSettings::LineSearchType::BackTracking) ?
-          solver::linesearch::BackTrackingLineSearch(
+          solver::linesearch::BackTrackingLinesearch<_Problem>().run(
               xCur, dir, problem(), solverData.argmin, &alpha,
               linesearchSettings(), settings().verbosity);
       solverData.nIter = iter + 1;
