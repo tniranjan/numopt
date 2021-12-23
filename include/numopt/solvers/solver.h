@@ -1,5 +1,6 @@
 #pragma once
 
+#include "linesearch/linesearchSettings.h"
 #include "solverData.h"
 #include "solverSettings.h"
 #include <base/types.h>
@@ -13,7 +14,11 @@ template <typename _Problem> class Solver {
 
 public:
   Solver(const TProblem &problem, const solver::SolverSettings &settings)
-      : problem_(problem), settings_(settings){};
+      : problem_(problem),
+        settings_(settings), linesearchSettings_{
+                                 settings.functionTolerance,
+                                 settings.parameterTolerance,
+                                 settings.maxLineSearchIterations} {};
   virtual solver::SolverData minimize(const VectorX &initialValue) = 0;
   void printSummary(const solver::SolverData &solverData) const {
     std::cout << "Achieved a function minimum of : " << solverData.min
@@ -39,6 +44,9 @@ protected:
   }
   const TProblem &problem() const { return problem_; }
   const solver::SolverSettings &settings() const { return settings_; }
+  const solver::linesearch::LinesearchSettings &linesearchSettings() const {
+    return linesearchSettings_;
+  }
 
 private:
   bool checkCondition(const bool condition, const std::string message) const {
@@ -50,5 +58,6 @@ private:
 
   const TProblem &problem_;
   const solver::SolverSettings &settings_;
+  const solver::linesearch::LinesearchSettings &linesearchSettings_;
 };
 } // namespace numopt

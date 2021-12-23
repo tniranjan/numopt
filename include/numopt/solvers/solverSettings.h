@@ -3,7 +3,7 @@
 namespace numopt {
 namespace solver {
 struct SolverSettings {
-  enum class LineSearchType { BackTracking, Interpolation };
+  enum class LineSearchType { BackTracking, StrongWolfe };
   double functionTolerance;
   double parameterTolerance;
   unsigned maxSolverIterations;

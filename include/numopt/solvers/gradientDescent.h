@@ -15,6 +15,7 @@ public:
   using Solver<_Problem>::problem;
   using Solver<_Problem>::settings;
   using Solver<_Problem>::hasConverged;
+  using Solver<_Problem>::linesearchSettings;
   solver::SolverData minimize(const VectorX &initValue) {
     solver::SolverData solverData;
     solverData.argmin = initValue;
@@ -25,12 +26,11 @@ public:
       prevNorm = solverData.min;
       const VectorX dir = direction(solverData.argmin);
       const VectorX xCur = solverData.argmin;
-      solverData.min = //(settings().linesearchtype == solver::SolverSettings::LineSearchType::BackTracking) ?
-          solver::BackTrackingLineSearch(xCur, dir, problem(), solverData.argmin,
-                                   &alpha, settings().verbosity,
-                                   settings().functionTolerance,
-                                   settings().parameterTolerance,
-                                   settings().maxLineSearchIterations);
+      solverData.min = //(settings().linesearchtype ==
+                       //solver::SolverSettings::LineSearchType::BackTracking) ?
+          solver::linesearch::BackTrackingLineSearch(
+              xCur, dir, problem(), solverData.argmin, &alpha,
+              linesearchSettings(), settings().verbosity);
       solverData.nIter = iter + 1;
       solverData.paramNorm = alpha * dir.norm();
       if (hasConverged(std::abs(prevNorm - solverData.min), alpha * dir.norm(),

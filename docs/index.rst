@@ -49,7 +49,13 @@ As of now this is an unconstrained optimization solver, that takes a problem, an
    :members:
 .. doxygenclass:: numopt::Solver
    :members:
-.. doxygenfunction:: numopt::solver::BackTrackingLineSearch
 .. doxygenclass:: numopt::GradientDescentSolver
    :members:
 
+Linesearch
+----------
+
+.. doxygenstruct:: numopt::solver::linesearch::LinesearchSettings
+   :members:
+.. doxygenfunction:: numopt::solver::linesearch::BackTrackingLineSearch
+.. doxygenfunction:: numopt::solver::linesearch::StrongWolfeLineSearch
