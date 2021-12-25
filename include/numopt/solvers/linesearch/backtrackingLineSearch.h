@@ -1,6 +1,7 @@
 #pragma once
 
 #include "linesearchSettings.h"
+#include "solvers/solverSettings.h"
 #include <base/types.h>
 
 namespace numopt::solver::linesearch {
@@ -12,7 +13,7 @@ namespace numopt::solver::linesearch {
 template <typename Evaluator> class BackTrackingLinesearch {
 public:
   double run(const VectorX &xcur, const VectorX &dir, const Evaluator func,
-             VectorX &xnext, double *palpha, const LinesearchSettings &settings,
+             VectorX &xnext, double *palpha, const SolverSettings &settings,
              const unsigned verbose) {
     double alphak = LS_InitAlpha;
     const double initNorm = func(xcur);
@@ -21,7 +22,7 @@ public:
     if (verbose > 1)
       std::cout << "BackTracking - Init Norm : " << initNorm << std::endl;
 
-    for (unsigned iter = 0; iter < settings.maxIterations; iter++) {
+    for (unsigned iter = 0; iter < settings.maxLineSearchIterations; iter++) {
       xnext = (xcur + alphak * dir).eval();
       const double curNorm = func(xnext);
 
@@ -36,7 +37,7 @@ public:
         return curNorm;
       }
 
-      if ((iter == (settings.maxIterations - 1)) ||
+      if ((iter == (settings.maxLineSearchIterations - 1)) ||
           (std::fabs(curNorm - prevNorm) < settings.functionTolerance) ||
           (alphak * dir.norm() < settings.parameterTolerance))
         break;

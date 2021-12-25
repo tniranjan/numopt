@@ -1,6 +1,7 @@
 #pragma once
 
 #include "linesearchSettings.h"
+#include "solvers/solverSettings.h"
 #include <base/types.h>
 
 namespace numopt::solver::linesearch {
@@ -13,14 +14,14 @@ public:
   StrongWolfeLinesearch(const Evaluator &functor) : functor_(functor) {}
   double run(const VectorX &xcur, const VectorX &dir, VectorX &xnext,
              const double alpha_0, double *palpha,
-             const LinesearchSettings &settings, const unsigned verbose) {
+             const SolverSettings &settings, const unsigned verbose) {
     xcur_ = xcur;
     dir_ = dir;
     auto phiInfo_im1 = getPhiInfo(std::min(1.0, alpha_0 * 1.01));
     auto phiInfo_i = getPhiInfo(std::min(phiInfo_im1.alpha / LS_Rho, LS_MaxAlpha));
     phiInfo_0_ = getPhiInfo(0);
     double phi_im1 = phiInfo_0_.phi;
-    for (unsigned iter = 0; iter < settings.maxIterations; iter++) {
+    for (unsigned iter = 0; iter < settings.maxLineSearchIterations; iter++) {
       if (check_armijo(phiInfo_i) || (iter && (phiInfo_i.phi >= phi_im1))) {
         auto phiOptimal = zoom(phiInfo_im1, phiInfo_i);
         *palpha = phiOptimal.alpha;
@@ -39,6 +40,9 @@ public:
         return functor_(xnext);
       }
       phiInfo_i = getPhiInfo(std::min(phiInfo_i.alpha / LS_Rho, LS_MaxAlpha));
+      if(verbose ){
+          std::cout<<"Iteration "<<iter<<" f(x) : "<<phiInfo_i.phi<<" alpha "<<phiInfo_i.alpha<<std::endl;
+      }
     }
     return phiInfo_0_.phi;
   }

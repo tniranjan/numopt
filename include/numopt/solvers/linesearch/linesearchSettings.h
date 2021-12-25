@@ -16,5 +16,8 @@ struct LinesearchSettings {
   double parameterTolerance;
   /**  max no. of linesearch iterations. */
   unsigned maxIterations;
+  LinesearchSettings(double funcTol, double paramTol, unsigned maxIter)
+      : functionTolerance(funcTol), parameterTolerance(paramTol),
+        maxIterations(maxIter) {}
 };
 } // namespace numopt::solver::linesearch
