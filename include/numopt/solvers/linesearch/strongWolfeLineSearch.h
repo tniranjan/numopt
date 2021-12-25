@@ -10,55 +10,87 @@ namespace numopt::solver::linesearch {
  */
 template <typename Evaluator> class StrongWolfeLinesearch {
 public:
-  double run(const VectorX &xcur, const VectorX &dir, const Evaluator func,
-             VectorX &xnext, const double alpha_0, double *palpha,
+  StrongWolfeLinesearch(const Evaluator &functor) : functor_(functor) {}
+  double run(const VectorX &xcur, const VectorX &dir, VectorX &xnext,
+             const double alpha_0, double *palpha,
              const LinesearchSettings &settings, const unsigned verbose) {
-    double alpha_im1 = min(1.0, alpha_0 * 1.01);
-    double alpha_i = std::min(alpha_im1 / LS_Rho, LS_MaxAlpha);
-    const auto [grad_0, phi_0] = func.gradient(xcur);
-    const auto dphi_0 = grad_0.dot(dir);
-    double phi_im1 = phi_0;
+    xcur_ = xcur;
+    dir_ = dir;
+    auto phiInfo_im1 = getPhiInfo(std::min(1.0, alpha_0 * 1.01));
+    auto phiInfo_i = getPhiInfo(std::min(phiInfo_im1.alpha / LS_Rho, LS_MaxAlpha));
+    phiInfo_0_ = getPhiInfo(0);
+    double phi_im1 = phiInfo_0_.phi;
     for (unsigned iter = 0; iter < settings.maxIterations; iter++) {
-      const auto [grad_i, phi_i] = func.gradient(xcur + alpha_i * dir);
-      const auto dphi_i = grad_i.dot(dir);
-      if ((phi_i > (phi_0 + LS_C1 * alpha_i * dphi_0)) ||
-          (iter && (phi_i >= phi_im1))) {
-        *palpha = zoom(alpha_im1, alpha_i, xcur, dir, func);
-        xnext = xcur + *palpha + dir;
-        return func(xnext);
+      if (check_armijo(phiInfo_i) || (iter && (phiInfo_i.phi >= phi_im1))) {
+        auto phiOptimal = zoom(phiInfo_im1, phiInfo_i);
+        *palpha = phiOptimal.alpha;
+        xnext = xcur_ + *palpha * dir_;
+        return functor_(xnext);
       }
-      if (abs(dphi_i) <= -LS_C2 * dphi_0) {
-        *palpha = alpha_i;
-        xnext = xcur + *palpha * dir;
-        return phi_i;
+      if (abs(phiInfo_i.dphi) <= -LS_C2 * phiInfo_0_.dphi) {
+        *palpha = phiInfo_i.alpha;
+        xnext = xcur_ + *palpha * dir_;
+        return phiInfo_i.phi;
       }
-      if (dphi_i >= 0) {
-        *palpha = zoom(alpha_i, alpha_im1, xcur, dir, func);
-        xnext = xcur + *palpha + dir;
-        return func(xnext);
+      if (phiInfo_i.dphi >= 0) {
+        auto phiOptimal = zoom(phiInfo_i, phiInfo_im1);
+        *palpha = phiOptimal.alpha;
+        xnext = xcur_ + *palpha * dir_;
+        return functor_(xnext);
       }
-      alpha_i = std::min(alpha_i / LS_Rho, LS_MaxAlpha);
+      phiInfo_i = getPhiInfo(std::min(phiInfo_i.alpha / LS_Rho, LS_MaxAlpha));
     }
-    return phi_0;
+    return phiInfo_0_.phi;
   }
+
 private:
-  double interpolate_cubic(const double alpha_im1, const double phi_im1,
-                           const double dphi_im1, const double alpha_i,
-                           const double phi_i, const double dphi_i) {
-    const auto d1 =
-        dphi_im1 + dphi_i - 3 * (phi_im1 - phi_i) / (alpha_im1 - alpha_i);
-    const auto d2 = std::copysign(1.0, alpha_i - alpha_im1) *
-                    std::sqrt(d1 * d1 - dphi_i * dphi_im1);
-    return alpha_i - (alpha_i - alpha_im1) * (dphi_i + d2 - d1) /
-                         (dphi_i - dphi_im1 + 2 * d2);
+  struct PhiInfo {
+    double alpha;
+    double phi;
+    double dphi;
+  };
+
+PhiInfo getPhiInfo(const double alpha) {
+    const auto [grad, phi] = functor_.gradient(xcur_ + alpha * dir_);
+    const auto dphi = grad.dot(dir_);
+    return {alpha, phi, dphi};
   }
-  template <typename DerivedX, typename Evaluator>
-  double zoom(double alpha_l, double alpha_h,
-              const Eigen::MatrixBase<DerivedX> &xcur,
-              const Eigen::MatrixBase<DerivedX> &dir, Evaluator func) {
+
+  double interpolate_cubic(const PhiInfo low, const PhiInfo high) {
+    const auto d1 = low.dphi + high.dphi -
+                    3 * (low.phi - high.phi) / (low.alpha - high.alpha);
+    const auto d2 = std::copysign(1.0, high.alpha - low.alpha) *
+                    std::sqrt(d1 * d1 - high.dphi * low.dphi);
+    return high.alpha - (high.alpha - low.alpha) * (high.dphi + d2 - d1) /
+                            (high.dphi - low.dphi + 2 * d2);
+  }
+
+  PhiInfo zoom(PhiInfo phiInfo_l, PhiInfo phiInfo_h) {
     for (int j = 0; j < 10; j++) {
-      double alpha_j = interpolate_cubic()
+      double alpha_j = interpolate_cubic(phiInfo_l, phiInfo_h);
+      PhiInfo phiInfo_j = getPhiInfo(alpha_j);
+      if (check_armijo(phiInfo_j) || (phiInfo_j.phi >= phiInfo_l.phi)) {
+        phiInfo_h = phiInfo_j;
+      } else {
+        if (std::abs(phiInfo_j.dphi) <= -LS_C2 * phiInfo_0_.dphi) {
+          return phiInfo_j;
+        }
+        if (phiInfo_j.dphi * (phiInfo_h.alpha - phiInfo_l.alpha) >= 0) {
+          phiInfo_h = phiInfo_l;
+        }
+        phiInfo_l = phiInfo_j;
+      }
     }
+    return phiInfo_l;
   }
+  
+  bool check_armijo(const PhiInfo phiInfo) const {
+    return (phiInfo.phi > (phiInfo_0_.phi + LS_C1 * phiInfo.alpha * phiInfo_0_.dphi));
+  }
+
+  PhiInfo phiInfo_0_;
+  const Evaluator &functor_;
+  VectorX xcur_;
+  VectorX dir_;
 };
 } // namespace numopt::solver::linesearch

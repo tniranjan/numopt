@@ -1,5 +1,6 @@
 #pragma once
 #include <solvers/linesearch/backtrackingLineSearch.h>
+#include <solvers/linesearch/strongWolfeLineSearch.h>
 #include <solvers/solver.h>
 #include <solvers/solverSettings.h>
 
