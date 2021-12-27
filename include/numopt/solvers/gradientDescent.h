@@ -1,5 +1,6 @@
 #pragma once
 #include <solvers/linesearch/backtrackingLineSearch.h>
+#include <solvers/linesearch/strongWolfeLineSearch.h>
 #include <solvers/solver.h>
 #include <solvers/solverSettings.h>
 
@@ -20,17 +21,28 @@ public:
     solverData.argmin = initValue;
     double prevNorm;
     solverData.min = problem()(initValue);
-    double alpha(1);
+    double alpha(1), dphi(0), dphi_im1(0);
     for (unsigned iter = 0; iter < settings().maxSolverIterations; iter++) {
       prevNorm = solverData.min;
       const VectorX dir = direction(solverData.argmin);
       const VectorX xCur = solverData.argmin;
-      solverData.min = //(settings().linesearchtype == solver::SolverSettings::LineSearchType::BackTracking) ?
-          solver::BackTrackingLineSearch(xCur, dir, problem(), solverData.argmin,
-                                   &alpha, settings().verbosity,
-                                   settings().functionTolerance,
-                                   settings().parameterTolerance,
-                                   settings().maxLineSearchIterations);
+      dphi = dir.dot(dir);
+      const double alphaCur = iter ? alpha * dphi_im1 / dphi : 1e-5;
+      dphi_im1 = dphi;
+      solverData
+          .min = (settings().linesearchtype ==
+                  solver::SolverSettings::LineSearchType::BackTracking) ?
+          solver::linesearch::BackTrackingLinesearch<_Problem>().run(
+              xCur, dir, problem(), solverData.argmin, &alpha, settings(),
+              settings().verbosity):
+          solver::linesearch::StrongWolfeLinesearch<_Problem>(problem()).run(
+              xCur, dir, solverData.argmin, alphaCur, &alpha, settings(),
+              settings().verbosity);
+      if (settings().verbosity) {
+        std::cout << "Gradient Descent iteration : " << iter
+                  << " f(x):" << solverData.min
+                  << " at x_o:" << solverData.argmin << std::endl;
+      }
       solverData.nIter = iter + 1;
       solverData.paramNorm = alpha * dir.norm();
       if (hasConverged(std::abs(prevNorm - solverData.min), alpha * dir.norm(),

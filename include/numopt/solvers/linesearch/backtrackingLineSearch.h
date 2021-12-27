@@ -1,62 +1,58 @@
 #pragma once
 
+#include "linesearchSettings.h"
+#include "solvers/solverSettings.h"
 #include <base/types.h>
 
-namespace numopt {
-namespace solver {
-constexpr static double LS_InitalAlpha = 0.8;
-constexpr static double LS_Rho = 0.5;
-constexpr static double LS_C = 0.0001;
+namespace numopt::solver::linesearch {
 /**
- * Implements the Backtracking algorithm. (3.1)
+ * Implements the Backtracking algorithm. (Algorithm 3.1)
  * Only ensures sufficient decrease (weak Wolfe Conditions)
  */
 
-template <typename DerivedX, typename Evaluator>
-double BackTrackingLineSearch(const Eigen::MatrixBase<DerivedX> &xcur,
-                              const Eigen::MatrixBase<DerivedX> &dir,
-                              const Evaluator func,
-                              Eigen::MatrixBase<DerivedX> &xnext,
-                              double *palpha, const unsigned verbose,
-                              const double funcTol, const double paramTol,
-                              const unsigned maxIterations) {
-  double alphak = LS_InitalAlpha;
-  const double initNorm = func(xcur);
-  double prevNorm = initNorm;
-
-  if (verbose > 1)
-    std::cout << "BackTracking - Init Norm : " << initNorm << std::endl;
-
-  for (unsigned iter = 0; iter < maxIterations; iter++) {
-    xnext = (xcur + alphak * dir).eval();
-    const double curNorm = func(xnext);
+template <typename Evaluator> class BackTrackingLinesearch {
+public:
+  double run(const VectorX &xcur, const VectorX &dir, const Evaluator func,
+             VectorX &xnext, double *palpha, const SolverSettings &settings,
+             const unsigned verbose) {
+    double alphak = LS_InitAlpha;
+    const double initNorm = func(xcur);
+    double prevNorm = initNorm;
 
     if (verbose > 1)
-      std::cout << "BackTracking - Cur Norm : " << curNorm
-                << " Step Size : " << alphak << std::endl;
+      std::cout << "BackTracking - Init Norm : " << initNorm << std::endl;
 
-    if (curNorm <= initNorm - LS_C * alphak * dir.norm()) {
-      if (palpha)
-        *palpha = alphak;
+    for (unsigned iter = 0; iter < settings.maxLineSearchIterations; iter++) {
+      xnext = (xcur + alphak * dir).eval();
+      const double curNorm = func(xnext);
 
-      return curNorm;
+      if (verbose > 1)
+        std::cout << "BackTracking - Cur Norm : " << curNorm
+                  << " Step Size : " << alphak << std::endl;
+
+      if (curNorm <= initNorm - LS_C1 * alphak * dir.norm()) {
+        if (palpha)
+          *palpha = alphak;
+
+        return curNorm;
+      }
+
+      if ((iter == (settings.maxLineSearchIterations - 1)) ||
+          (std::fabs(curNorm - prevNorm) < settings.functionTolerance) ||
+          (alphak * dir.norm() < settings.parameterTolerance))
+        break;
+
+      alphak = alphak * LS_Rho;
+      prevNorm = curNorm;
     }
 
-    if ((iter == (maxIterations - 1)) ||
-        (std::fabs(curNorm - prevNorm) < funcTol) ||
-        (alphak * dir.norm() < paramTol))
-      break;
+    if (palpha)
+      *palpha = 0.0;
 
-    alphak = alphak * LS_Rho;
-    prevNorm = curNorm;
+    xnext = xcur;
+
+    return initNorm;
   }
+};
 
-  if (palpha)
-    *palpha = 0.0;
-
-  xnext = xcur;
-
-  return initNorm;
-}
-} // namespace solver
-} // namespace numopt
+} // namespace numopt::solver::linesearch

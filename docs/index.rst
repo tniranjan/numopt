@@ -15,25 +15,49 @@ Or a yali_. Whatever sinks your boat.
 Docs
 ====
 
-.. doxygenfunction:: numopt::functors::paraboloid
-.. doxygenfunction:: numopt::functors::rosenbrock
+Problems
+--------
+A problem defines the objective funtion that is to be minimized (unconstrained as of now). It must atleast define the evaluation function and a gradient function. 
+
 .. doxygenclass:: numopt::ProblemBase
    :members:
-.. doxygenclass:: numopt::ProblemAD
-   :members:
-
 .. doxygenclass:: numopt::problems::Rosenbrock2dProblem
    :members:
 .. doxygenclass:: numopt::problems::ParaboloidProblem
    :members:
 
-.. doxygenclass:: numopt::Solver
+
+
+.. doxygenclass:: numopt::ProblemAD
    :members:
+
+Functors
+--------
+It might not always be easy to derive your gradient vector, and even more hard to get your hessian matrix. In such situations, we can use autodiff to obtain the gradient and Hessian. The class :class:`numopt::ProblemAD` implements this functionality, as long as the desired function is defined as a template function.
+The following functors serve as examples.
+
+.. doxygenfunction:: numopt::functors::paraboloid
+.. doxygenfunction:: numopt::functors::rosenbrock
+
+Solvers
+-------
+As of now this is an unconstrained optimization solver, that takes a problem, and finds its minima.
+
 .. doxygenstruct:: numopt::solver::SolverData
    :members:
 .. doxygenstruct:: numopt::solver::SolverSettings
    :members:
-.. doxygenfunction:: numopt::solver::BackTrackingLineSearch
+.. doxygenclass:: numopt::Solver
+   :members:
 .. doxygenclass:: numopt::GradientDescentSolver
    :members:
 
+Linesearch
+----------
+
+.. doxygenstruct:: numopt::solver::linesearch::LinesearchSettings
+   :members:
+.. doxygenclass:: numopt::solver::linesearch::BackTrackingLinesearch
+   :members:
+.. doxygenclass:: numopt::solver::linesearch::StrongWolfeLinesearch
+   :members:
