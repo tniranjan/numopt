@@ -17,12 +17,12 @@ public:
              const SolverSettings &settings, const unsigned verbose) {
     xcur_ = xcur;
     dir_ = dir;
-    auto phiInfo_im1 = getPhiInfo(std::min(1.0, alpha_0 * 1.01));
-    auto phiInfo_i = getPhiInfo(std::min(phiInfo_im1.alpha / LS_Rho, LS_MaxAlpha));
+    auto phiInfo_i =getPhiInfo(std::min(1.0, alpha_0 * 1.01));
     phiInfo_0_ = getPhiInfo(0);
-    double phi_im1 = phiInfo_0_.phi;
+    PhiInfo phiInfo_im1 = phiInfo_0_;
+    PhiInfo phiInfo_amax = getPhiInfo(LS_MaxAlpha);
     for (unsigned iter = 0; iter < settings.maxLineSearchIterations; iter++) {
-      if (check_armijo(phiInfo_i) || (iter && (phiInfo_i.phi >= phi_im1))) {
+      if (check_armijo(phiInfo_i) || (iter && (phiInfo_i.phi >= phiInfo_im1.phi))) {
         auto phiOptimal = zoom(phiInfo_im1, phiInfo_i);
         *palpha = phiOptimal.alpha;
         xnext = xcur_ + *palpha * dir_;
@@ -39,9 +39,13 @@ public:
         xnext = xcur_ + *palpha * dir_;
         return functor_(xnext);
       }
-      phiInfo_i = getPhiInfo(std::min(phiInfo_i.alpha / LS_Rho, LS_MaxAlpha));
-      if(verbose ){
-          std::cout<<"Iteration "<<iter<<" f(x) : "<<phiInfo_i.phi<<" alpha "<<phiInfo_i.alpha<<std::endl;
+      phiInfo_im1 = phiInfo_i;
+      phiInfo_i = //getphiinfo(std::min(phiinfo_im1.alpha / ls_rho, ls_maxalpha));
+      getPhiInfo(interpolate_cubic(phiInfo_i,phiInfo_amax ));
+      if (verbose > 1) {
+        std::cout << "StrongWolfe iteration " << iter
+                  << " f(x) : " << phiInfo_i.phi << " alpha " << phiInfo_i.alpha
+                  << std::endl;
       }
     }
     return phiInfo_0_.phi;
@@ -54,7 +58,7 @@ private:
     double dphi;
   };
 
-PhiInfo getPhiInfo(const double alpha) {
+  PhiInfo getPhiInfo(const double alpha) {
     const auto [grad, phi] = functor_.gradient(xcur_ + alpha * dir_);
     const auto dphi = grad.dot(dir_);
     return {alpha, phi, dphi};
@@ -73,6 +77,7 @@ PhiInfo getPhiInfo(const double alpha) {
     for (int j = 0; j < 10; j++) {
       double alpha_j = interpolate_cubic(phiInfo_l, phiInfo_h);
       PhiInfo phiInfo_j = getPhiInfo(alpha_j);
+    //   std::cout << "Z " << phiInfo_j.phi << " " << phiInfo_j.alpha << std::endl;
       if (check_armijo(phiInfo_j) || (phiInfo_j.phi >= phiInfo_l.phi)) {
         phiInfo_h = phiInfo_j;
       } else {
@@ -87,9 +92,10 @@ PhiInfo getPhiInfo(const double alpha) {
     }
     return phiInfo_l;
   }
-  
+
   bool check_armijo(const PhiInfo phiInfo) const {
-    return (phiInfo.phi > (phiInfo_0_.phi + LS_C1 * phiInfo.alpha * phiInfo_0_.dphi));
+    return (phiInfo.phi >
+            (phiInfo_0_.phi + LS_C1 * phiInfo.alpha * phiInfo_0_.dphi));
   }
 
   PhiInfo phiInfo_0_;

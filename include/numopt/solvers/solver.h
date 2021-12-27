@@ -16,12 +16,6 @@ public:
       : problem_(problem),
         settings_(settings) {};
   virtual solver::SolverData minimize(const VectorX &initialValue) = 0;
-  void printSummary(const solver::SolverData &solverData) const {
-    std::cout << "Achieved a function minimum of : " << solverData.min
-              << " after : " << solverData.nIter
-              << " . Final parameter change : " << solverData.paramNorm
-              << std::endl;
-  }
 
 protected:
   virtual VectorX direction(const VectorX &in) const = 0;
